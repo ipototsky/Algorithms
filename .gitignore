@@ -1,0 +1,11 @@
+## User-specific stuff:
+.idea/uiDesigner.xml
+.idea/vcs.xml
+.idea/workspace.xml
+
+
+## File-based project format:
+*.iws
+
+## Class Folder
+/target/
