@@ -32,6 +32,13 @@ public class Stack<Item> implements Iterable<Item> {
         return result;
     }
 
+    public Item peek() {
+        if (isEmpty()) {
+            throw new EmptyStackException();
+        }
+        return root.item;
+    }
+
     public boolean isEmpty() {
         return root == null;
     }
