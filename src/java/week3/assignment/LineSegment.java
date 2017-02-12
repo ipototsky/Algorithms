@@ -1,3 +1,5 @@
+package week3.assignment;
+
 /**
  * Created by ipototsky on 1/27/17.
  */

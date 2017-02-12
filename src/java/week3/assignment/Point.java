@@ -1,4 +1,4 @@
-/**
+package week3.assignment; /**
  * Created by ipototsky on 1/27/17.
  */
 
@@ -103,7 +103,7 @@ public class Point implements Comparable<Point> {
     }
 
     /**
-     * Unit tests the Point data type.
+     * Unit tests the week3.assignment.Point data type.
      */
     public static void main(String[] args) {
         /* YOUR CODE HERE */
