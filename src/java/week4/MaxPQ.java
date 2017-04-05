@@ -3,7 +3,6 @@ package week4;
 import java.util.NoSuchElementException;
 
 import static utils.SortUtils.less;
-import static utils.SortUtils.swap;
 
 /**
  * Created by ivan.pototsky on 06.02.2017.
@@ -20,9 +19,14 @@ public class MaxPQ<Val extends Comparable<Val>> {
         this.array = (Val[]) new Comparable[capacity + 1];   //0'th element is null for simplicity
     }
 
+    public Val max() {
+        if (isEmpty()) throw new NoSuchElementException();
+        return array[1];
+    }
+
     public void insert(Val value) {
         array[++n] = value;
-        up(n);
+        swim(n);
     }
 
     public Val delMax() {
@@ -30,9 +34,9 @@ public class MaxPQ<Val extends Comparable<Val>> {
             throw new NoSuchElementException();
         }
         Val max = array[1];
-        swap(array, 1, n);
+        swap(1, n);
         array[n--] = null;
-        down(1);
+        sink(1);
         return max;
     }
 
@@ -40,38 +44,31 @@ public class MaxPQ<Val extends Comparable<Val>> {
         return n == 0;
     }
 
-    private void up(int k) {
-        while (hasParent(k) && less(parent(k), array[k])) {
-            swap(array, k, parentIndex(k));
-            k = parentIndex(k);
+    private void swim(int k) {
+        while (k > 1 && less(k/2, k)) {
+            swap(k, k/2);
+            k = k/2;
         }
     }
 
-    private void down(int k) {
+    private void sink(int k) {
         while (2*k <= n) {
             int j = 2*k;
-            if(j < n && less(array[2*k], array[2*k+1])) {
+            if(j < n && less(array[j], array[j+1])) {
                 j++;
             }
             if (!less(array[k], array[j])) {
                 break;
             }
-            swap(array, k, j);
+            swap(k, j);
             k = j;
         }
     }
 
-    //TODO remove this helpers.
-    private boolean hasParent(int i) {
-        return i > 1;
-    }
-
-    private Val parent(int i) {
-        return array[parentIndex(i)];
-    }
-
-    private int parentIndex(int i) {
-        return i/2;
+    private void swap(int i, int j) {
+        Val temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
     }
 
     public static void main(String[] args) {
