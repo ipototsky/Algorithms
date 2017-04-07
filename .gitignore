@@ -1,9 +1,5 @@
 ## User-specific stuff:
-.idea/checkstyle-idea.xml
-.idea/uiDesigner.xml
-.idea/vcs.xml
-.idea/workspace.xml
-.idea/shelf
+.idea/*
 
 
 ## File-based project format:
