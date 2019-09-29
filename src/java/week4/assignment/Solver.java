@@ -9,7 +9,6 @@ import java.util.Stack;
 
 public class Solver {
     private LinkedList<Board> solution;
-    private boolean twinSolvable;
 
     public Solver(Board initial) {
         if (initial == null) throw new IllegalArgumentException();
@@ -17,47 +16,28 @@ public class Solver {
             solution = new LinkedList<>();
             solution.add(initial);
         } else {
-            SearchNode initNode = new SearchNode(initial, null, 0);
-            SearchNode twinInitNode = new SearchNode(initial.twin(), null, 0);
+            SearchNode initNode = new SearchNode(initial, null, 0, false);
+            SearchNode twinInitNode = new SearchNode(initial.twin(), null, 11, true);
 
             MinPQ<SearchNode> queue = new MinPQ<>();
-            MinPQ<SearchNode> twinQueue = new MinPQ<>();
 
             queue.insert(initNode);
-            twinQueue.insert(twinInitNode);
+            queue.insert(twinInitNode);
 
-            while (!twinSolvable && solution == null) {
+            while (!queue.min().board.isGoal()) {
 
                 SearchNode node = queue.delMin();
-                for (Board board : node.board.neighbors()) {
+                    for (Board board : node.board.neighbors()) {
                     if (node.previous == null || !node.previous.board.equals(board)) {
-                        SearchNode child = new SearchNode(board, node, node.moves + 1);
+                        SearchNode child = new SearchNode(board, node, node.moves + 1, node.twin);
 
                         if (child.board.isGoal()) {
-                            Stack<Board> stack = new Stack<>();
-                            stack.push(child.board);
-                            while (child.previous != null) {
-                                child = child.previous;
-                                stack.push(child.board);
+                            if (!child.twin) {
+                                buildSolution(child);
                             }
-                            LinkedList<Board> result = new LinkedList<>();
-                            while (!stack.isEmpty()) {
-                                result.add(stack.pop());
-                            }
-                            solution = result;
+                            return;
                         }
                         queue.insert(child);
-                    }
-                }
-                SearchNode twinNode = twinQueue.delMin();
-                for (Board board : twinNode.board.neighbors()) {
-                    if (twinNode.previous == null || !twinNode.previous.board.equals(board)) {
-                        SearchNode child = new SearchNode(board, twinNode, node.moves + 1);
-
-                        if (child.board.isGoal()) {
-                            twinSolvable = true;
-                        }
-                        twinQueue.insert(child);
                     }
                 }
             }
@@ -66,37 +46,51 @@ public class Solver {
 
     // is the initial board solvable? (see below)
     public boolean isSolvable() {
-//        twinSolution = aSearch(initial.twin(), new MinPQ<>());
-//        return twinSolution == null;
         return solution != null;
     }
 
     // min number of moves to solve initial board
     public int moves() {
-        return solution == null ? -1 : solution.size() - 1;
+        return isSolvable() ? solution.size() - 1 : -1;
     }
 
     // sequence of boards in a shortest solution
     public Iterable<Board> solution() {
+        if (!isSolvable()) return null;
         return solution;
+    }
+
+    private void buildSolution(SearchNode goal) {
+        Stack<Board> stack = new Stack<>();
+        stack.push(goal.board);
+        while (goal.previous != null) {
+            goal = goal.previous;
+            stack.push(goal.board);
+        }
+        solution = new LinkedList<>();
+        while (!stack.isEmpty()) {
+            solution.add(stack.pop());
+        }
     }
 
     private static class SearchNode implements Comparable<SearchNode> {
         private final Board board;
         private final SearchNode previous;
         private final int moves;
-        private int priority;
+        private int manhattanPriority;
+        private boolean twin;
 
-        public SearchNode(Board board, SearchNode previous, int moves) {
+        public SearchNode(Board board, SearchNode previous, int moves, boolean twin) {
             this.board = board;
             this.previous = previous;
             this.moves = moves;
-            this.priority = board.manhattan() + moves;
+            this.manhattanPriority = board.manhattan() + moves;
+            this.twin = twin;
         }
 
         @Override
         public int compareTo(SearchNode n) {
-            return Integer.compare(priority, n.priority);
+            return Integer.compare(manhattanPriority, n.manhattanPriority);
         }
     }
 

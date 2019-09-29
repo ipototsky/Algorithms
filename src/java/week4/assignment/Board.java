@@ -1,8 +1,8 @@
 package week4.assignment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Collection;
 
 public class Board {
     private final int[][] tiles;
@@ -12,7 +12,6 @@ public class Board {
     private int manhattan = -1;
     private int hamming = -1;
     private int isGoal = -1;
-//    private int inversions = -1;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -20,7 +19,6 @@ public class Board {
         N = tiles.length;
         this.tiles = new int[N][N];
         for (int i = 0; i < N; i++) {
-//            System.arraycopy(tiles[i], 0, this.tiles[i], 0, N);
             for (int j = 0; j < N; j++) {
                 if (tiles[i][j] == 0) {
                     zeroRow = i;
@@ -112,7 +110,7 @@ public class Board {
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        Queue<Board> queue = new LinkedList<>();
+        Collection<Board> queue = new ArrayList<>();
         if (zeroColumn > 0) {
             int[][] copy = copyOf(tiles);
             copy[zeroRow][zeroColumn-1] = tiles[zeroRow][zeroColumn];
@@ -178,25 +176,6 @@ public class Board {
         }
         return result;
     }
-
-//    private int inversions() {
-//        if (inversions == -1) {
-//            inversions = 0;
-//            for (int i = 0; i < N * N; i++) {
-//                if (tiles[i / N][i % N] != 0) {
-//                    for (int j = i + 1; j < N * N; j++) {
-//                        if (tiles[j / N][j % N] != 0) {
-//                            if (tiles[i / N][i % N] > tiles[j / N][j % N]) {
-//                                inversions++;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        System.out.println("Inversions count="+inversions);
-//        return inversions;
-//    }
 
     private int expected(int i, int j) {
         return i * N + j + 1;
