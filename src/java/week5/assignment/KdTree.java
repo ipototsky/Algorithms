@@ -73,6 +73,7 @@ public class KdTree {
         if (node == null) return;
 
         StdDraw.setPenColor(Color.black);
+//        StdDraw.setPenRadius(0.015);
         node.point.draw();
 
         StdDraw.setPenRadius();
@@ -105,40 +106,56 @@ public class KdTree {
         if ((node.vertical && rect.xmin() < node.point.x()) || (!node.vertical && rect.ymin() < node.point.y())) {
             range(node.left, rect, result);
         }
-        if (node.vertical && rect.xmax() > node.point.x() || (!node.vertical && rect.ymax() > node.point.y())) {
+        if (node.vertical && rect.xmax() >= node.point.x() || (!node.vertical && rect.ymax() >= node.point.y())) {
             range(node.right, rect, result);
         }
     }
 
     public Point2D nearest(Point2D queryPoint) {
         if (queryPoint == null) throw new IllegalArgumentException();
-        return isEmpty() ? null : nearest(root, queryPoint, root.point);
+        RectHV rectHV = new RectHV(0, 0, 1, 1);
+        return isEmpty() ? null : nearest(root, rectHV, queryPoint, root.point);
     }
 
-    private Point2D nearest(Node node, Point2D query, Point2D nearest) {
+    private Point2D nearest(Node node, RectHV rectHV, Point2D query, Point2D nearest) {
         if (node == null) return nearest;
         if (node.point.distanceSquaredTo(query) < nearest.distanceSquaredTo(query)) {
             nearest = node.point;
         }
-        if ((node.vertical && query.x() < node.point.x()) || (!node.vertical && query.y() < node.point.y())) {
-            nearest = nearest(node.left, query, nearest);
-            if (checkOtherSide(query, node, nearest)) {
-                nearest = nearest(node.right, query, nearest);
+        if (node.vertical) {
+            RectHV leftRect = new RectHV(rectHV.xmin(), rectHV.ymin(), node.point.x(), rectHV.ymax());
+            RectHV rightRect = new RectHV(node.point.x(), rectHV.ymin(), rectHV.xmax(), rectHV.ymax());
+            if (query.x() < node.point.x()) {
+                nearest = nearest(node.left, leftRect, query, nearest);
+                if (checkOtherSide(query, rightRect, nearest)) {
+                    nearest = nearest(node.right, rightRect, query, nearest);
+                }
+            } else {
+                nearest = nearest(node.right, rightRect, query, nearest);
+                if (checkOtherSide(query, leftRect, nearest)) {
+                    nearest = nearest(node.left, leftRect, query, nearest);
+                }
             }
         } else {
-            nearest = nearest(node.right, query, nearest);
-            if (checkOtherSide(query, node, nearest)) {
-                nearest = nearest(node.left, query, nearest);
+            RectHV leftRect = new RectHV(rectHV.xmin(), rectHV.ymin(), rectHV.xmax(), node.point.y());
+            RectHV rightRect = new RectHV(rectHV.xmin(), node.point.y(), rectHV.xmax(), rectHV.ymax());
+            if (query.y() < node.point.y()) {
+                nearest = nearest(node.left, leftRect, query, nearest);
+                if (checkOtherSide(query, rightRect, nearest)) {
+                    nearest = nearest(node.right, rightRect, query, nearest);
+                }
+            } else {
+                nearest = nearest(node.right, rightRect, query, nearest);
+                if (checkOtherSide(query, leftRect, nearest)) {
+                    nearest = nearest(node.left, leftRect, query, nearest);
+                }
             }
         }
         return nearest;
     }
 
-    private boolean checkOtherSide(Point2D query, Node node, Point2D nearest) {
-        double distanceToRect = node.vertical ?
-                Math.pow(query.x() - node.point.x(), 2) :
-                Math.pow(query.y() - node.point.y(), 2);
-        return distanceToRect < query.distanceSquaredTo(nearest);
+    private boolean checkOtherSide(Point2D query, RectHV rectHV, Point2D nearest) {
+        return rectHV.distanceSquaredTo(query) < query.distanceSquaredTo(nearest);
     }
 
     private class Node {
