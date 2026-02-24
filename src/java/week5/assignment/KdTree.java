@@ -25,6 +25,8 @@ public class KdTree {
 
     public void insert(Point2D point2D) {
         if (point2D == null) throw new IllegalArgumentException();
+        if (contains(point2D)) return;
+
         if (root == null) {
             size++;
             root = new Node(point2D, true);
@@ -71,7 +73,6 @@ public class KdTree {
         if (node == null) return;
 
         StdDraw.setPenColor(Color.black);
-        StdDraw.setPenRadius(0.015);
         node.point.draw();
 
         StdDraw.setPenRadius();
