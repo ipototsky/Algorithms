@@ -112,7 +112,7 @@ public class KdTree {
 
     public Point2D nearest(Point2D queryPoint) {
         if (queryPoint == null) throw new IllegalArgumentException();
-        return nearest(root, queryPoint, root.point);
+        return isEmpty() ? null : nearest(root, queryPoint, root.point);
     }
 
     private Point2D nearest(Node node, Point2D query, Point2D nearest) {
